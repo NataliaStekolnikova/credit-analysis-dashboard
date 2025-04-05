@@ -1,91 +1,105 @@
-# credit-analysis-dashboard
-# Sistema de Análisis Financiero para Decisiones de Crédito
+# Credit Analysis Dashboard
+# How to Run the System
 
-Este repositorio contiene la especificación y componentes base de un sistema automatizado para analizar estados financieros de empresas, con el objetivo de asistir al departamento de créditos de una entidad bancaria en la toma rápida y fundamentada de decisiones sobre la concesión de préstamos a organizaciones.
+This system extracts key financial information from 10-K filings submitted to the SEC EDGAR database and saves structured data for further analysis or visualization.
 
----
+## Project Structure
 
-## Objetivo del Proyecto
+├── data/                       
+│   ├── raw/                    # Original 10-K files downloaded from EDGAR  
+│   └── processed/  
+│       └── 2025_02_notes/      
+│           ├── financial_summary_clean_full/  # Cleaned financial summaries (CSV, JSON, etc.)  
+│           └── unique_tags/                   # Extracted unique tags  
+├── notebooks/                 
+│   └── extracting-financial-10-k-reports-via-sec-edgar-db.ipynb  
+├── dashboards/                # Power BI or Tableau dashboards  
+├── src/                       
+│   ├── download_10k.py        # Script to fetch 10-K filings automatically
+├── requirements.txt           
+├── .gitignore  
+└── README.md  
 
-Desarrollar una solución integral que permita:
+## Setup Instructions
 
-- Cargar y procesar reportes financieros históricos de empresas (últimos 7 años)
-- Extraer automáticamente indicadores clave con ayuda de un LLM (ej. ChatGPT)
-- Construir un perfil financiero estructurado de la empresa
-- Visualizar los datos a través de dashboards en Power BI
-- Generar reportes listos para analistas y responsables de decisiones crediticias
+### 1. Clone the Repository
 
----
+```bash
+git clone https://github.com/NataliaStekolnikova/credit-analysis-dashboard.git
+cd credit-analysis-dashboard
+```
 
-## Tipos de Documentos Admitidos
+### 2. Create a Virtual Environment
 
-- Financial 10-K Reports
+```bash
+python -m venv venv
+source venv/bin/activate      # macOS/Linux
+venv\Scripts\activate         # Windows
+```
 
-Formatos soportados: TXT, HTM
+### 3. Install Dependencies
 
-Data: https://www.kaggle.com/code/purvasingh/extracting-financial-10-k-reports-via-sec-edgar-db/input
+```bash
+pip install -r requirements.txt
+```
 
----
+## Running the Analysis Pipeline
 
-## Flujo del Sistema
+### Step 0: Automatically Fetch the Latest 10-K Filing
 
-1. Carga de documentos  
-   El usuario sube los archivos o los conecta desde una carpeta compartida
+Use the script below to download the latest 10-K form for any public company by ticker symbol:
 
-2. Extracción de texto  
-   Uso de OCR / parsers para convertir documentos a texto
+```bash
+python src/download_10k.py AAPL
+```
 
-3. Procesamiento con LLM  
-   Envío del texto a un LLM para extraer:
-   - Ingresos
-   - EBITDA
-   - Utilidad neta
-   - Activos / Pasivos
-   - Ratios financieros
+This will save the most recent 10-K HTML filing from SEC EDGAR to:
 
-4. Estructuración  
-   Almacenamiento de datos limpios en tablas normalizadas
+```
+data/raw/AAPL_10K.html
+```
 
-5. Generación de informes  
-   Informe financiero con métricas históricas y observaciones clave
+To fetch another company’s report, replace `AAPL` with the desired ticker.
 
-6. Visualización  
-   Dashboard interactivo en Power BI con:
-   - Evolución de ingresos
-   - Margen de utilidad
-   - Liquidez, solvencia, eficiencia
 
----
+### Step 1: Download 10-K Filing Automatically
 
-## Tecnologías Utilizadas
+Use the script to fetch the latest 10-K filing for a given ticker symbol:
 
-| Tecnología | Uso |
-|------------|-----|
-| Python | Backend y procesamiento de datos |
-| LLM API (ChatGPT) | Extracción inteligente de indicadores |
-| Power BI | Visualización de dashboards |
-| MySQL | Almacenamiento estructurado de datos |
+```bash
+python src/download_10k.py
+```
 
----
+By default, it will download the latest 10-K for "AAPL" and save it to:
 
-## Posibilidades de Expansión
+```
+data/raw/AAPL_10K.html
+```
 
-- Integración con bases financieras oficiales
-- Modelos de scoring y predicción de riesgo
-- Paneles comparativos multiempresa
+To change the ticker, edit the script `download_10k.py`.
 
----
+### Step 2: Open and Run the Notebook
 
-## Estado del Proyecto
+```bash
+jupyter notebook notebooks/extracting-financial-10-k-reports-via-sec-edgar-db.ipynb
+```
 
-Fase de desarrollo inicial.  
-En curso: construcción del pipeline de extracción + integración con LLM.  
-Próximamente: EDA y visualización Power BI.
+## What Happens Inside the Notebook
 
----
+- Loads the raw 10-K text or HTML file
+- Extracts relevant sections using regular expressions and string parsing:
+  - Item 7: Management Discussion & Analysis (MD&A)
+  - Item 8: Financial Statements and Supplementary Data
+- Cleans and organizes the extracted content
+- Saves output to:
 
-## Contacto
+```
+data/processed/2025_02_notes/
+├── financial_summary_clean_full/
+└── unique_tags/
+```
 
-¿Tienes dudas o quieres colaborar en este proyecto?  
-Email: natalia.a.stekolnikova@gmail.com  
-Natalia Stekolnikova
+## Notes
+
+- Designed for working with English-language 10-K filings from EDGAR
+- Structure of EDGAR filings may vary slightly; parsing logic may require updates over time
