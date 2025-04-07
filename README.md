@@ -18,7 +18,7 @@ This repository contains core components of an automated system for analyzing co
 ├── src/                       
 │   ├── etl.py
 │   ├── eda.py
-│   └── stats.py       
+│   └── stats.py      
 ├── requirements.txt           
 ├── .gitignore  
 └── README.md  
