@@ -5,7 +5,7 @@ This repository contains core components of an automated system for analyzing co
 # How to Run the System
 
 ## Project Structure
-
+```
 ├── data/                                      # 
 │   ├── raw/                                   # Original tsv files downloaded and extracted from EDGAR 
 │   └── processed/                             # 
@@ -24,6 +24,7 @@ This repository contains core components of an automated system for analyzing co
 ├── .gitignore                                 # 
 └── README.md                                  # 
 └── LICENSE.txt                                # This repository is licensed under MIT license
+```
 
 ## Setup Instructions
 
