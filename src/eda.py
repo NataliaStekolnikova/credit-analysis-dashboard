@@ -1,3 +1,13 @@
+"""
+Copyright 2025 Natalia Stekolnikova
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the “Software”), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+"""
+
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
@@ -86,6 +96,12 @@ def eda_correlation_analysis(edf):
         sns.boxplot(x=trimmed_edf)
         plt.title(f'Boxplot of {metric} (5% Outliers Removed)')
         plt.show()
+
+    print("\nCorrelation matrix (without Outliers):")
+    features.append('Risk Flag')
+    trimmed_edf = edf[features].dropna()
+    corr_matrix = trimmed_edf.corr()
+    print(corr_matrix)
 
 def pca_analysis(edf):
     print("\nEDA Principal Component Analysis (PCA):")
