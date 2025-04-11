@@ -1,4 +1,15 @@
+"""
+Copyright 2025 Natalia Stekolnikova
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the “Software”), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+"""
+
 import os
+import sys
 import requests
 import pandas as pd
 import numpy as np
@@ -7,13 +18,13 @@ from datetime import datetime
 
 def download_dataset(url, local_filename):
     headers = {
-        "User-Agent": "NataliaStekolnikova-FinRiskApp/1.0 (natalia.a.stekolnikova@gmail.com)",  # Replace with your details
+        "User-Agent": "NataliaStekolnikova-FinRiskApp/1.0 (example@gmail.com)",  # Replace with your details
         "Accept-Encoding": "gzip, deflate",
         "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
         "Connection": "keep-alive",
         "Host": "www.sec.gov",
         "Referer": "https://www.sec.gov/",
-        "From": "natalia.a.stekolnikova@gmail.com"  # Replace with your email address
+        "From": "example@gmail.com"  # Replace with your email address
     }
     response = requests.get(url, headers=headers, stream=True)
     if response.status_code == 200:
@@ -126,12 +137,12 @@ def process_data(dataframes, output_path):
 
     return edf
 
-def main():
+def main(years_of_interest):
     print("Running ETL pipeline...")
     BASE_URL = "https://www.sec.gov/files/dera/data/financial-statement-notes-data-sets/{}_02_notes.zip"
-    LOCAL_DIR = "C:/Users/natal/credit-analysis-dashboard-v1/data/raw/"
-    OUTPUT_PATH = "C:/Users/natal/credit-analysis-dashboard/data/processed/2025_02_notes/financial_summary_{}.csv"
-    years_of_interest = [2024]
+    # LOCAL_DIR = "C:/Users/natal/credit-analysis-dashboard-v1/data/raw/"
+    LOCAL_DIR = "../credit-analysis-dashboard-v1/data/raw/"
+    OUTPUT_PATH = "./data/processed/2025_02_notes/financial_summary_{}.csv"
 
     # Download and process data for the last 10 years
     for year in years_of_interest:
@@ -155,4 +166,9 @@ def main():
         return processed_dataframes
 
 if __name__ == "__main__":
-    main()
+    if len(sys.argv) > 1:
+        # Convert all arguments after the script name to integers
+        years_of_interest = [int(year) for year in sys.argv[1:]]
+        main(years_of_interest)
+    else:
+        raise ValueError("You must pass one or more years (e.g., python etl.py 2023 2024)")
