@@ -34,7 +34,8 @@ def extract_dataset(local_filename, extract_to):
         print("Error: The downloaded file is not a valid ZIP file.")
 
 def load_data(input_dir):
-    file_names = ["sub", "num", "tag", "cal", "dim", "pre", "ren", "txt"]
+    # file_names = ["sub", "num", "tag", "cal", "dim", "pre", "ren", "txt"]
+    file_names = ["sub", "num"]
     dataframes = {}
     for file_name in file_names:
         file_path = os.path.join(input_dir, f"{file_name}.tsv")
@@ -108,7 +109,7 @@ def process_data(dataframes, output_path):
     edf.replace([np.inf, -np.inf], np.nan, inplace=True)
 
     # Add financial risk flag
-    edf['Financial Risk Flag'] = (
+    edf['Risk Flag'] = (
         (edf['Current Ratio'] < 1) |
         (edf['Debt to Equity'] > 2) |
         (edf['ROE'] < 0) |
@@ -116,7 +117,7 @@ def process_data(dataframes, output_path):
         (edf['Profit Margin'] < 0) |
         edf[['Current Ratio', 'Debt to Equity', 'ROE', 'ROI', 'Profit Margin']].isnull().any(axis=1)
     )
-    edf['Risk Category'] = edf['Financial Risk Flag'].map({True: 'High Risk', False: 'Low Risk'})
+    edf['Risk Category'] = edf['Risk Flag'].map({True: 'High Risk', False: 'Low Risk'})
 
     # Save the processed dataset
     os.makedirs(os.path.dirname(output_path), exist_ok=True)
