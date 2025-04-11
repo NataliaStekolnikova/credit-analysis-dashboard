@@ -6,23 +6,23 @@ This repository contains core components of an automated system for analyzing co
 
 ## Project Structure
 
-├── data/                       
-│   ├── raw/                                   # Original tsv files downloaded and extracted from EDGAR
-│   └── processed/  
-│       └── 2025_02_notes/      
+├── data/                                      # 
+│   ├── raw/                                   # Original tsv files downloaded and extracted from EDGAR 
+│   └── processed/                             # 
+│       └── 2025_02_notes/                     # 
 │           ├── financial_summary.csv          # Cleaned financial summaries (consumed in Power BI)  
-│           └── unique_tags.csv                # Extracted unique tags (financial indicators)
-├── notebooks/                 
+│           └── unique_tags.csv                # Extracted unique tags (financial indicators) 
+├── notebooks/                                 # 
 │   └── extracting-financial-10-k-reports-via-sec-edgar-db.ipynb  
-├── dashboards/                                
-│   └── Financial state of the companies.pbix  # Power BI dashboard for end-users
-├── src/                       
-│   ├── etl.py
-│   ├── eda.py
-│   └── stats.py      
-├── requirements.txt           
-├── .gitignore  
-└── README.md
+├── dashboards/                                # 
+│   └── Financial state of the companies.pbix  # Power BI dashboard for end-users 
+├── src/                                       # 
+│   ├── etl.py                                 # 
+│   ├── eda.py                                 # 
+│   └── stats.py                               # 
+├── requirements.txt                           # 
+├── .gitignore                                 # 
+└── README.md                                  # 
 └── LICENSE.txt                                # This repository is licensed under MIT license
 
 ## Setup Instructions
