@@ -47,9 +47,9 @@ conda install --file requirements.txt
 
 ## Running the Analysis Pipeline
 
-### Step 1: Download the Latest Data Set
+### Step 1: Download and Process Financial Data
 
-Use the script below to download the latest financial data set for public companies:
+Use the script below to extract and transform the latest financial dataset from SEC EDGAR:
 
 ```bash
 python src/ETL.py
@@ -64,8 +64,25 @@ data/raw/2025_02_notes.zip
 Also this script will create the cleaned and tranformed data sets and will store them at: 
 
 ```
-data/processed/2025_02_notes/financial_summary_clean_full.csv
+data/processed/2025_02_notes/
+├── financial_summary_2021.csv
+├── financial_summary_2022.csv
+├── financial_summary_2024.csv
+├── financial_summary_2025.csv
+├── financial_summary.csv        # Possibly merged or raw version
+└── unique_tags.csv   
 ```
+These files contain the cleaned and structured financial summaries from 10-K reports, which are used for:
+
+Exploratory data analysis (EDA)
+
+Statistical modeling
+
+Risk profiling of companies
+
+Dashboard building in Power BI
+
+The unique_tags.csv file includes all standardized XBRL tags extracted from the original reports, useful for tagging, filtering, or tracking metadata.
 
 ### Step 2: Perform EDA
 
