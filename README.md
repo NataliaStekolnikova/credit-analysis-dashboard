@@ -1,91 +1,126 @@
-# credit-analysis-dashboard
-# Sistema de Análisis Financiero para Decisiones de Crédito
+# Credit Analysis Dashboard
 
-Este repositorio contiene la especificación y componentes base de un sistema automatizado para analizar estados financieros de empresas, con el objetivo de asistir al departamento de créditos de una entidad bancaria en la toma rápida y fundamentada de decisiones sobre la concesión de préstamos a organizaciones.
+This repository contains core components of an automated system for analyzing companies' financial statements, aimed at assisting the credit department of a banking institution in making quick and well-founded decisions regarding the granting of loans to organizations.
 
----
+# How to Run the System
 
-## Objetivo del Proyecto
+## Project Structure
 
-Desarrollar una solución integral que permita:
+├── data/                       
+│   ├── raw/                    # Original 10-K files downloaded from EDGAR  
+│   └── processed/  
+│       └── 2025_02_notes/      
+│           ├── financial_summary_clean_full/  # Cleaned financial summaries (CSV, JSON, etc.)  
+│           └── unique_tags/                   # Extracted unique tags  
+├── notebooks/                 
+│   └── extracting-financial-10-k-reports-via-sec-edgar-db.ipynb  
+├── dashboards/                # Power BI or Tableau dashboards  
+├── src/                       
+│   ├── etl.py
+│   ├── eda.py
+│   └── stats.py      
+├── requirements.txt           
+├── .gitignore  
+└── README.md  
 
-- Cargar y procesar reportes financieros históricos de empresas (últimos 7 años)
-- Extraer automáticamente indicadores clave con ayuda de un LLM (ej. ChatGPT)
-- Construir un perfil financiero estructurado de la empresa
-- Visualizar los datos a través de dashboards en Power BI
-- Generar reportes listos para analistas y responsables de decisiones crediticias
+## Setup Instructions
 
----
+### 1. Clone the Repository
 
-## Tipos de Documentos Admitidos
+```bash
+git clone https://github.com/NataliaStekolnikova/credit-analysis-dashboard.git
+cd credit-analysis-dashboard
+```
 
-- Financial 10-K Reports
+### 2. Create a Virtual Environment
 
-Formatos soportados: TXT, HTM
+```bash
+conda create --n credit_analysis_env python=3.9
+conda activate credit_analysis_env
+```
 
-Data: https://www.kaggle.com/code/purvasingh/extracting-financial-10-k-reports-via-sec-edgar-db/input
+### 3. Install Dependencies
 
----
+```bash
+conda install --file requirements.txt
+```
 
-## Flujo del Sistema
+## Running the Analysis Pipeline
 
-1. Carga de documentos  
-   El usuario sube los archivos o los conecta desde una carpeta compartida
+### Step 1: Download and Process Financial Data
 
-2. Extracción de texto  
-   Uso de OCR / parsers para convertir documentos a texto
+Use the script below to extract and transform the latest financial dataset from SEC EDGAR:
 
-3. Procesamiento con LLM  
-   Envío del texto a un LLM para extraer:
-   - Ingresos
-   - EBITDA
-   - Utilidad neta
-   - Activos / Pasivos
-   - Ratios financieros
+```bash
+python src/ETL.py
+```
 
-4. Estructuración  
-   Almacenamiento de datos limpios en tablas normalizadas
+This will save the most filings from SEC EDGAR to:
 
-5. Generación de informes  
-   Informe financiero con métricas históricas y observaciones clave
+```
+data/raw/2025_02_notes.zip
+```
 
-6. Visualización  
-   Dashboard interactivo en Power BI con:
-   - Evolución de ingresos
-   - Margen de utilidad
-   - Liquidez, solvencia, eficiencia
+Also this script will create the cleaned and tranformed data sets and will store them at: 
 
----
+```
+data/processed/2025_02_notes/
+├── financial_summary_2021.csv
+├── financial_summary_2022.csv
+├── financial_summary_2024.csv
+├── financial_summary_2025.csv
+├── financial_summary.csv        # Possibly merged or raw version
+└── unique_tags.csv   
+```
+These files contain the cleaned and structured financial summaries from 10-K reports, which are used for:
 
-## Tecnologías Utilizadas
+Exploratory data analysis (EDA)
 
-| Tecnología | Uso |
-|------------|-----|
-| Python | Backend y procesamiento de datos |
-| LLM API (ChatGPT) | Extracción inteligente de indicadores |
-| Power BI | Visualización de dashboards |
-| MySQL | Almacenamiento estructurado de datos |
+Statistical modeling
 
----
+Risk profiling of companies
 
-## Posibilidades de Expansión
+Dashboard building in Power BI
 
-- Integración con bases financieras oficiales
-- Modelos de scoring y predicción de riesgo
-- Paneles comparativos multiempresa
+The unique_tags.csv file includes all standardized XBRL tags extracted from the original reports, useful for tagging, filtering, or tracking metadata.
 
----
+### Step 2: Perform EDA
 
-## Estado del Proyecto
+Use the script below to perform EDA:
 
-Fase de desarrollo inicial.  
-En curso: construcción del pipeline de extracción + integración con LLM.  
-Próximamente: EDA y visualización Power BI.
+```bash
+python src/EDA.py
+```
 
----
+### Step 3: Perform Statistical Analysis
 
-## Contacto
+Use the script below to perform Statistics:
 
-¿Tienes dudas o quieres colaborar en este proyecto?  
-Email: natalia.a.stekolnikova@gmail.com  
-Natalia Stekolnikova
+```bash
+python src/stats.py
+```
+
+## Optional: Experiments
+
+Use the following notebook to conduct experiments: 
+
+```bash
+jupyter notebook notebooks/extracting-financial-10-k-reports-via-sec-edgar-db.ipynb
+```
+
+### What Happens Inside the Notebook
+
+- Loads and processes raw financial data from the SEC EDGAR portal  
+- Downloads and extracts ZIP files containing XBRL-formatted annual report data (10-K forms)  
+- Parses structured data tables such as `sub.tsv`, `num.tsv`, `tag.tsv`, `txt.tsv`, etc.  
+- Performs ETL (Extract, Transform, Load) operations:
+  - Extracts financial metrics, textual disclosures, and metadata  
+  - Loads and organizes tables into pandas DataFrames  
+- Prepares a clean dataset for exploratory analysis
+- Explores key financial indicators and textual sections relevant to bankruptcy prediction  
+- Saves the processed data to local directories for modeling and dashboarding  
+
+## Notes
+
+- Designed for working with public filings from EDGAR database
+- Structure of EDGAR filings may vary slightly; parsing logic may require updates over time
