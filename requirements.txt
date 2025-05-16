@@ -1,8 +1,10 @@
-matplotlib==3.10.1
-numpy==2.2.4
+matplotlib==3.10.3
+numpy==2.2.5
+numpy_financial==1.0.0
 pandas==2.2.3
 Requests==2.32.3
 scikit_learn==1.6.1
-scipy==1.15.2
+scipy==1.15.3
 seaborn==0.13.2
 statsmodels==0.14.4
+streamlit==1.44.1
