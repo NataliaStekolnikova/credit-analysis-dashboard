@@ -28,7 +28,7 @@ st.markdown("*Esta simulación se basa en datos históricos y no garantiza renta
 
 @st.cache_data
 def choose_tickers():
-    df = pd.read_csv('./data/processed/top_100_growth_stocks.csv')
+    df = pd.read_csv("./data/processed/top_100_growth_stocks.csv")
     if df.empty:
         st.error("❌ No se encontraron datos de acciones. Por favor, verifica la fuente de datos.")
         return [], []
@@ -40,22 +40,33 @@ def choose_tickers():
     for ticker, name in zip(tickers, names):
         try:
             data = yf.Ticker(ticker).history(period="1d")
-            if not data.empty:
+            if data.empty:
+                st.warning(f"⚠️ No hay datos históricos para {ticker} (API vacía)")
+            else:
                 tickers_validos.append(ticker)
                 names_validos.append(name)
-        except:
-            pass
+        except Exception as e:
+            st.warning(f"⚠️ Error al acceder a {ticker}: {e}")
+    if not tickers_validos:
+        st.error("❌ No se pudo obtener información de ningún ticker válido desde Yahoo Finance.")
     return tickers_validos, names_validos
 
 @st.cache_data
 def cargar_datos():
     tickers, names = choose_tickers()
+    if not tickers:
+        return pd.DataFrame(), [], []
     symbols = dict(zip(names, tickers))
     data = pd.DataFrame()
     for company, symbol in symbols.items():
-        df = yf.download(symbol, start=start_date, end=end_date)
-        if not df.empty and 'Close' in df.columns:
-            data[company] = df['Close']
+        try:
+            df = yf.download(symbol, start=start_date, end=end_date)
+            if not df.empty and 'Close' in df.columns:
+                data[company] = df['Close']
+        except Exception as e:
+            st.warning(f"⚠️ No se pudieron descargar datos para {symbol}: {e}")
+    if data.empty:
+        st.error("❌ No se pudo descargar ningún dato de precios históricos.")
     return data.dropna(), tickers, names
 
 def optimizar_cartera(mean_returns, cov_matrix, perfil, volatilities, threshold=0.6):
@@ -112,6 +123,10 @@ def optimizar_cartera(mean_returns, cov_matrix, perfil, volatilities, threshold=
         else:
             bounds.append((0, 1))  # normal allocation range
 
+    if all(b[1] == 0 for b in bounds):
+        st.error("❌ Todos los activos han sido excluidos por ser demasiado volátiles para tu perfil de riesgo. Intenta con un perfil más arriesgado o revisa los datos.")
+        return np.array([])
+
     # Initial equal weight guess
     w0 = np.ones(n) / n
     
@@ -120,7 +135,6 @@ def optimizar_cartera(mean_returns, cov_matrix, perfil, volatilities, threshold=
 
     # Minimize the selected objective
     result = minimize(objetivos[perfil], w0, bounds=bounds, constraints=constraints)
-
     return result.x
 
 def determinar_perfil(respuestas):
@@ -162,6 +176,10 @@ if ejecutar:
 
     with st.spinner("🔍 Calculando cartera óptima..."):
         data, tickers, names = cargar_datos()
+        if data.empty:
+            st.warning("No se pudo generar una cartera óptima con los datos disponibles.")
+            st.stop()
+        
         returns = data.pct_change().dropna()
         mean_returns = returns.mean()
         cov_matrix = returns.cov()
@@ -170,6 +188,9 @@ if ejecutar:
         # Volatilidad anualizada = desviación estándar de los retornos diarios * sqrt(252)
         volatilities = returns.std() * np.sqrt(252)
         pesos = optimizar_cartera(mean_returns, cov_matrix, perfil, volatilities)
+        if pesos.size == 0:
+            st.warning("No se pudo generar una cartera óptima con los datos disponibles.")
+            st.stop()
 
         # Mostrar tabla de pesos
         cartera = {data.columns[i]: round(pesos[i]*100, 2) for i in range(len(data.columns)) if pesos[i] > 0.001}
