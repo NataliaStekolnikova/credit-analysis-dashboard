@@ -22,40 +22,53 @@ def choose_tickers():
         return [], []
     tickers = df['Ticker'].tolist()
     names = df['name'].tolist()
-
-    tickers_validos = []
-    names_validos = []
-    for ticker, name in zip(tickers, names):
-        try:
-            data = yf.Ticker(ticker).history(period="1d")
-            if data.empty:
-                st.warning(f"⚠️ No hay datos históricos para {ticker} (API vacía)")
-            else:
-                tickers_validos.append(ticker)
-                names_validos.append(name)
-        except Exception as e:
-            st.warning(f"⚠️ Error al acceder a {ticker}: {e}")
-    if not tickers_validos:
-        st.error("❌ No se pudo obtener información de ningún ticker válido desde Yahoo Finance.")
-    return tickers_validos, names_validos
+    # tickers_validos = []
+    # names_validos = []
+    # for ticker, name in zip(tickers, names):
+    #     try:
+    #         data = yf.Ticker(ticker).history(period="1d")
+    #         if data.empty:
+    #             st.warning(f"⚠️ No hay datos históricos para {ticker} (API vacía)")
+    #         else:
+    #             tickers_validos.append(ticker)
+    #             names_validos.append(name)
+    #     except Exception as e:
+    #         st.warning(f"⚠️ Error al acceder a {ticker}: {e}")
+    # if not tickers_validos:
+    #     st.error("❌ No se pudo obtener información de ningún ticker válido desde Yahoo Finance.")
+    # return tickers_validos, names_validos
+    return tickers, names
 
 @st.cache_data
-def cargar_datos():
+def cargar_datos(start_date, end_date):
     tickers, names = choose_tickers()
-    if not tickers:
+    
+    if not tickers or not names or len(tickers) != len(names):
+        st.error("❌ Error en los datos de los tickers.")
         return pd.DataFrame(), [], []
+    
     symbols = dict(zip(names, tickers))
     data = pd.DataFrame()
+    
     for company, symbol in symbols.items():
         try:
             df = yf.download(symbol, start=start_date, end=end_date)
             if not df.empty and 'Close' in df.columns:
-                data[company] = df['Close']
+                close_prices = df['Close'].dropna()
+                if not close_prices.empty:
+                    data[f"{company} ({symbol})"] = close_prices
+                else:
+                    st.warning(f"⚠️ Columna 'Close' vacía para {symbol}")
+            else:
+                st.warning(f"⚠️ Sin datos válidos para {symbol}")
         except Exception as e:
             st.warning(f"⚠️ No se pudieron descargar datos para {symbol}: {e}")
+    
     if data.empty:
         st.error("❌ No se pudo descargar ningún dato de precios históricos.")
-    return data.dropna(), tickers, names
+    
+    # Drop rows that are NaN in ALL columns (more robust)
+    return data.dropna(how='all'), tickers, names
 
 def optimizar_cartera(mean_returns, cov_matrix, perfil, volatilities, threshold=0.6):
     """
